@@ -1,0 +1,9 @@
+CACHE MANIFEST
+# Version 1.0
+
+CACHE:
+main.html
+hen.bin
+
+NETWORK:
+*
