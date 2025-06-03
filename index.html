@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html manifest="cache.appcache">
+<html manifest="cache.manifest">
 <head>
   <meta charset="utf-8">
-  <title>نصب کش آفلاین</title>
+  <title>Offline Installer</title>
   <style>
     body {
       background: black;
@@ -31,88 +31,39 @@
       border-radius: 10px;
       border: none;
       cursor: pointer;
-      margin: 10px 5px;
-    }
-    button:disabled {
-      background: #555;
-      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
 
 <h1>🚀 نصب کش آفلاین</h1>
-
-<button id="startBtn" onclick="startCaching()">شروع نصب</button>
-<button id="retryBtn" onclick="retryCaching()" style="display:none;">تلاش مجدد</button>
+<button onclick="startCaching()">شروع نصب</button>
 
 <div id="progressBar"><div id="progressFill"></div></div>
 <p id="status">آماده نصب</p>
 
 <script>
-  var appCache = window.applicationCache;
-  var startBtn = document.getElementById('startBtn');
-  var retryBtn = document.getElementById('retryBtn');
-  var progressFill = document.getElementById('progressFill');
-  var statusText = document.getElementById('status');
-
-  function resetUI() {
-    progressFill.style.width = '0%';
-    statusText.innerText = 'آماده نصب';
-    startBtn.disabled = false;
-    retryBtn.style.display = 'none';
-  }
-
-  function startCaching() {
-    startBtn.disabled = true;
-    retryBtn.style.display = 'none';
-    statusText.innerText = "در حال نصب کش...";
-    progressFill.style.width = '0%';
-
-    // رویدادهای کش را تنظیم می‌کنیم
-    appCache.addEventListener("progress", onProgress, false);
-    appCache.addEventListener("cached", onCached, false);
-    appCache.addEventListener("error", onError, false);
-
-    // درخواست به‌روزرسانی کش
-    try {
-      appCache.update();
-    } catch (e) {
-      onError();
-    }
-  }
-
-  function onProgress(e) {
+function startCaching() {
+  document.getElementById('status').innerText = "در حال نصب کش...";
+  window.applicationCache.addEventListener("progress", function(e) {
     if (e.lengthComputable) {
       var percent = Math.round(e.loaded / e.total * 100);
-      progressFill.style.width = percent + "%";
-      statusText.innerText = "در حال نصب کش... " + percent + "%";
-    } else {
-      // اگر طول قابل محاسبه نیست، فقط پیام پیشرفت کلی نشان دهیم
-      statusText.innerText = "در حال نصب کش...";
+      document.getElementById('progressFill').style.width = percent + "%";
+      document.getElementById('status').innerText = "در حال نصب کش... " + percent + "%";
     }
-  }
+  }, false);
 
-  function onCached() {
-    statusText.innerText = "✅ نصب کامل شد! انتقال به صفحه اصلی...";
+  window.applicationCache.addEventListener("cached", function() {
+    document.getElementById('status').innerText = "✅ نصب کامل شد! انتقال به صفحه اصلی...";
     setTimeout(function() {
       window.location.href = "main.html";
     }, 1500);
-  }
+  }, false);
 
-  function onError() {
-    statusText.innerText = "❌ خطا در نصب کش. لطفاً دوباره تلاش کنید.";
-    retryBtn.style.display = 'inline-block';
-    startBtn.disabled = true;
-  }
-
-  function retryCaching() {
-    resetUI();
-    startCaching();
-  }
-
-  // در بارگذاری صفحه، UI را ریست می‌کنیم
-  window.onload = resetUI;
+  window.applicationCache.addEventListener("error", function() {
+    document.getElementById('status').innerText = "❌ خطا در نصب کش. لطفاً دوباره تلاش کنید.";
+  }, false);
+}
 </script>
 
 </body>
